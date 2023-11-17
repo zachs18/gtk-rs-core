@@ -1,0 +1,13 @@
+error[E0597]: `data` does not live long enough
+  --> tests/lifetime_compiletest/05-boxed-dangling-value.rs:59:39
+   |
+58 |     let data = vec![1, 2, 3];
+   |         ---- binding `data` declared here
+59 |     let record = TestBoxedRecord::new(&data);
+   |                  ---------------------^^^^^-
+   |                  |                    |
+   |                  |                    borrowed value does not live long enough
+   |                  argument requires that `data` is borrowed for `'static`
+60 |     let value = record.to_value();
+61 | }
+   | - `data` dropped here while still borrowed

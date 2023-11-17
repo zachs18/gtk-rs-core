@@ -14,7 +14,7 @@ use crate::{prelude::*, translate::*};
 /// with the type system.
 ///
 /// [`register_boxed_type`]: fn.register_boxed_type.html
-pub trait BoxedType: StaticType + Clone + Sized + 'static {
+pub trait BoxedType: StaticType + Clone + Sized {
     // rustdoc-stripper-ignore-next
     /// Boxed type name.
     ///

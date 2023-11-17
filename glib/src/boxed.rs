@@ -17,7 +17,7 @@ use crate::translate::*;
 /// Wrapper implementations for Boxed types. See `wrapper!`.
 #[macro_export]
 macro_rules! glib_boxed_wrapper {
-    ([$($attr:meta)*] $visibility:vis $name:ident $(<$($generic:ident $(: $bound:tt $(+ $bound2:tt)*)?),+>)?, $ffi_name:ty,
+    ([$($attr:meta)*] $visibility:vis $name:ident $(<$($generic:tt $(: $bound:tt $(+ $bound2:tt)*)?),+>)?, $ffi_name:ty,
      @copy $copy_arg:ident $copy_expr:expr, @free $free_arg:ident $free_expr:expr
      $(, @type_ $get_type_expr:expr)?) => {
         $crate::glib_boxed_wrapper!(@generic_impl [$($attr)*] $visibility $name $(<$($generic $(: $bound $(+ $bound2)*)?),+>)?, $ffi_name);
@@ -30,7 +30,7 @@ macro_rules! glib_boxed_wrapper {
         $crate::glib_boxed_wrapper!(@value_impl $name $(<$($generic $(: $bound $(+ $bound2)*)?),+>)?, $ffi_name $(, @type_ $get_type_expr)?);
     };
 
-    (@generic_impl [$($attr:meta)*] $visibility:vis $name:ident $(<$($generic:ident $(: $bound:tt $(+ $bound2:tt)*)?),+>)?, $ffi_name:ty) => {
+    (@generic_impl [$($attr:meta)*] $visibility:vis $name:ident $(<$($generic:tt $(: $bound:tt $(+ $bound2:tt)*)?),+>)?, $ffi_name:ty) => {
         $(#[$attr])*
         #[repr(transparent)]
         $visibility struct $name $(<$($generic $(: $bound $(+ $bound2)*)?),+>)? {
@@ -75,7 +75,7 @@ macro_rules! glib_boxed_wrapper {
         unsafe impl $(<$($generic $(: $bound $(+ $bound2)*)?),+>)? $crate::translate::TransparentPtrType for $name $(<$($generic),+>)? {}
 
         #[doc(hidden)]
-        impl<'a $(, $($generic $(: $bound $(+ $bound2)*)?),+)?> $crate::translate::ToGlibPtr<'a, *const $ffi_name> for $name $(<$($generic),+>)? {
+        impl<'a $(, $($generic: 'a $(+ $bound $(+ $bound2)*)?),+)?> $crate::translate::ToGlibPtr<'a, *const $ffi_name> for $name $(<$($generic),+>)? {
             type Storage = std::marker::PhantomData<&'a $crate::boxed::Boxed<$ffi_name, Self>>;
 
             #[inline]
@@ -91,7 +91,7 @@ macro_rules! glib_boxed_wrapper {
         }
 
         #[doc(hidden)]
-        impl<'a $(, $($generic $(: $bound $(+ $bound2)*)?),+)?> $crate::translate::ToGlibPtr<'a, *mut $ffi_name> for $name $(<$($generic),+>)? {
+        impl<'a $(, $($generic: 'a $(+ $bound $(+ $bound2)*)?),+)?> $crate::translate::ToGlibPtr<'a, *mut $ffi_name> for $name $(<$($generic),+>)? {
             type Storage = std::marker::PhantomData<&'a $crate::boxed::Boxed<$ffi_name, Self>>;
 
             #[inline]
@@ -107,7 +107,7 @@ macro_rules! glib_boxed_wrapper {
         }
 
         #[doc(hidden)]
-        impl<'a $(, $($generic $(: $bound $(+ $bound2)*)?),+)?> $crate::translate::ToGlibPtrMut<'a, *mut $ffi_name> for $name $(<$($generic),+>)? {
+        impl<'a $(, $($generic: 'a $(+ $bound $(+ $bound2)*)?),+)?> $crate::translate::ToGlibPtrMut<'a, *mut $ffi_name> for $name $(<$($generic),+>)? {
             type Storage = std::marker::PhantomData<&'a mut $crate::boxed::Boxed<$ffi_name, Self>>;
 
             #[inline]
@@ -118,7 +118,7 @@ macro_rules! glib_boxed_wrapper {
         }
 
         #[doc(hidden)]
-        impl<'a $(, $($generic $(: $bound $(+ $bound2)*)?),+)?> $crate::translate::ToGlibContainerFromSlice<'a, *mut *const $ffi_name> for $name $(<$($generic),+>)? {
+        impl<'a $(, $($generic: 'a $(+ $bound $(+ $bound2)*)?),+)?> $crate::translate::ToGlibContainerFromSlice<'a, *mut *const $ffi_name> for $name $(<$($generic),+>)? {
             type Storage = (std::marker::PhantomData<&'a [Self]>, Option<Vec<*const $ffi_name>>);
 
             fn to_glib_none_from_slice(t: &'a [Self]) -> (*mut *const $ffi_name, Self::Storage) {
@@ -161,7 +161,7 @@ macro_rules! glib_boxed_wrapper {
         }
 
         #[doc(hidden)]
-        impl<'a $(, $($generic $(: $bound $(+ $bound2)*)?),+)?> $crate::translate::ToGlibContainerFromSlice<'a, *const *const $ffi_name> for $name $(<$($generic),+>)? {
+        impl<'a $(, $($generic: 'a $(+ $bound $(+ $bound2)*)?),+)?> $crate::translate::ToGlibContainerFromSlice<'a, *const *const $ffi_name> for $name $(<$($generic),+>)? {
             type Storage = (std::marker::PhantomData<&'a [Self]>, Option<Vec<*const $ffi_name>>);
 
             fn to_glib_none_from_slice(t: &'a [Self]) -> (*const *const $ffi_name, Self::Storage) {
@@ -311,10 +311,10 @@ macro_rules! glib_boxed_wrapper {
 
     };
 
-    (@value_impl $name:ident $(<$($generic:ident $(: $bound:tt $(+ $bound2:tt)*)?),+>)?, $ffi_name:ty) => {
+    (@value_impl $name:ident $(<$($generic:tt $(: $bound:tt $(+ $bound2:tt)*)?),+>)?, $ffi_name:ty) => {
      };
 
-    (@value_impl $name:ident $(<$($generic:ident $(: $bound:tt $(+ $bound2:tt)*)?),+>)?, $ffi_name:ty, @type_ $get_type_expr:expr) => {
+    (@value_impl $name:ident $(<$($generic:tt $(: $bound:tt $(+ $bound2:tt)*)?),+>)?, $ffi_name:ty, @type_ $get_type_expr:expr) => {
         impl $(<$($generic $(: $bound $(+ $bound2)*)?),+>)? $crate::types::StaticType for $name $(<$($generic),+>)? {
             #[inline]
             fn static_type() -> $crate::types::Type {
@@ -324,15 +324,15 @@ macro_rules! glib_boxed_wrapper {
         }
 
         #[doc(hidden)]
-        impl $(<$($generic $(: $bound $(+ $bound2)*)?),+>)? $crate::value::ValueType for $name $(<$($generic),+>)? {
+        impl $(<$($generic: 'static $(+ $bound $(+ $bound2)*)?),+>)? $crate::value::ValueType for $name $(<$($generic),+>)? {
             type Type = Self;
         }
 
         #[doc(hidden)]
-        impl $(<$($generic $(: $bound $(+ $bound2)*)?),+>)? $crate::value::ValueTypeOptional for $name $(<$($generic),+>)? { }
+        impl $(<$($generic: 'static $(+ $bound $(+ $bound2)*)?),+>)? $crate::value::ValueTypeOptional for $name $(<$($generic),+>)? { }
 
         #[doc(hidden)]
-        unsafe impl<'a $(, $($generic $(: $bound $(+ $bound2)*)?),+)?> $crate::value::FromValue<'a> for $name $(<$($generic),+>)? {
+        unsafe impl<'a $(, $($generic: 'static $(+ $bound $(+ $bound2)*)?),+)?> $crate::value::FromValue<'a> for $name $(<$($generic),+>)? {
             type Checker = $crate::value::GenericValueTypeOrNoneChecker<Self>;
 
             #[inline]
@@ -344,7 +344,7 @@ macro_rules! glib_boxed_wrapper {
         }
 
         #[doc(hidden)]
-        unsafe impl<'a $(, $($generic $(: $bound $(+ $bound2)*)?),+)?> $crate::value::FromValue<'a> for &'a $name $(<$($generic),+>)? {
+        unsafe impl<'a $(, $($generic: 'static $(+ $bound $(+ $bound2)*)?),+)?> $crate::value::FromValue<'a> for &'a $name $(<$($generic),+>)? {
             type Checker = $crate::value::GenericValueTypeOrNoneChecker<Self>;
 
             #[inline]
@@ -357,7 +357,7 @@ macro_rules! glib_boxed_wrapper {
         }
 
         #[doc(hidden)]
-        impl $(<$($generic $(: $bound $(+ $bound2)*)?),+>)? $crate::value::ToValue for $name $(<$($generic),+>)? {
+        impl $(<$($generic: 'static $(+ $bound $(+ $bound2)*)?),+>)? $crate::value::ToValue for $name $(<$($generic),+>)? {
             #[inline]
             fn to_value(&self) -> $crate::Value {
                 unsafe {
@@ -376,7 +376,7 @@ macro_rules! glib_boxed_wrapper {
             }
         }
 
-        impl $(<$($generic $(: $bound $(+ $bound2)*)?),+>)? std::convert::From<$name $(<$($generic),+>)?> for $crate::Value {
+        impl $(<$($generic: 'static $(+ $bound $(+ $bound2)*)?),+>)? std::convert::From<$name $(<$($generic),+>)?> for $crate::Value {
             #[inline]
             fn from(o: $name $(<$($generic),+>)?) -> Self {
                 unsafe {
@@ -391,7 +391,7 @@ macro_rules! glib_boxed_wrapper {
         }
 
         #[doc(hidden)]
-        impl $(<$($generic $(: $bound $(+ $bound2)*)?),+>)? $crate::value::ToValueOptional for $name $(<$($generic),+>)? {
+        impl $(<$($generic: 'static $(+ $bound $(+ $bound2)*)?),+>)? $crate::value::ToValueOptional for $name $(<$($generic),+>)? {
             #[inline]
             fn to_value_optional(s: Option<&Self>) -> $crate::Value {
                 let mut value = $crate::Value::for_value_type::<Self>();
@@ -407,7 +407,7 @@ macro_rules! glib_boxed_wrapper {
         }
 
 
-        impl $(<$($generic $(: $bound $(+ $bound2)*)?),+>)? $crate::HasParamSpec for $name $(<$($generic),+>)? {
+        impl $(<$($generic: 'static $(+ $bound $(+ $bound2)*)?),+>)? $crate::HasParamSpec for $name $(<$($generic),+>)? {
             type ParamSpec = $crate::ParamSpecBoxed;
             type SetValue = Self;
             type BuilderFn = fn(&str) -> $crate::ParamSpecBoxedBuilder<Self>;
@@ -418,7 +418,7 @@ macro_rules! glib_boxed_wrapper {
         }
     };
 
-    (@memory_manager_impl $name:ident $(<$($generic:ident $(: $bound:tt $(+ $bound2:tt)*)?),+>)?, $ffi_name:ty, @copy $copy_arg:ident $copy_expr:expr, @free $free_arg:ident $free_expr:expr) => {
+    (@memory_manager_impl $name:ident $(<$($generic:tt $(: $bound:tt $(+ $bound2:tt)*)?),+>)?, $ffi_name:ty, @copy $copy_arg:ident $copy_expr:expr, @free $free_arg:ident $free_expr:expr) => {
         #[doc(hidden)]
         impl $(<$($generic $(: $bound $(+ $bound2)*)?),+>)? $crate::boxed::BoxedMemoryManager for $name $(<$($generic),+>)? {
             type Target = $ffi_name;
@@ -439,7 +439,7 @@ macro_rules! glib_boxed_wrapper {
 
 // The safety docs really belong in the wrapper!() macro for Boxed<T>
 /// Memory management functions for a boxed type.
-pub trait BoxedMemoryManager: 'static {
+pub trait BoxedMemoryManager {
     type Target;
 
     /// Makes a copy.
@@ -455,7 +455,9 @@ pub struct Boxed<T: 'static, MM: BoxedMemoryManager<Target = T>> {
     _dummy: PhantomData<*mut MM>,
 }
 
-impl<'a, T: 'static, MM: BoxedMemoryManager<Target = T>> ToGlibPtr<'a, *const T> for Boxed<T, MM> {
+impl<'a, T: 'static, MM: BoxedMemoryManager<Target = T> + 'a> ToGlibPtr<'a, *const T>
+    for Boxed<T, MM>
+{
     type Storage = PhantomData<&'a Self>;
 
     #[inline]
@@ -471,7 +473,9 @@ impl<'a, T: 'static, MM: BoxedMemoryManager<Target = T>> ToGlibPtr<'a, *const T>
     }
 }
 
-impl<'a, T: 'static, MM: BoxedMemoryManager<Target = T>> ToGlibPtrMut<'a, *mut T> for Boxed<T, MM> {
+impl<'a, T: 'static, MM: BoxedMemoryManager<Target = T> + 'a> ToGlibPtrMut<'a, *mut T>
+    for Boxed<T, MM>
+{
     type Storage = PhantomData<&'a mut Self>;
 
     #[inline]

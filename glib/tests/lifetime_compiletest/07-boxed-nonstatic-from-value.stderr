@@ -1,0 +1,11 @@
+error: lifetime may not live long enough
+  --> tests/lifetime_compiletest/07-boxed-nonstatic-from-value.rs:56:5
+   |
+55 | fn not_necessarily_static<'a>(value: glib::Value) -> Option<TestBoxedRecord<'a>> {
+   |                           -- lifetime `'a` defined here
+56 |     value.get().ok()
+   |     ^^^^^^^^^^^^^^^^ returning this value requires that `'a` must outlive `'static`
+   |
+   = note: requirement occurs because of the type `TestBoxedRecord<'_>`, which makes the generic argument `'_` invariant
+   = note: the struct `TestBoxedRecord<'data>` is invariant over the parameter `'data`
+   = help: see <https://doc.rust-lang.org/nomicon/subtyping.html> for more information about variance
